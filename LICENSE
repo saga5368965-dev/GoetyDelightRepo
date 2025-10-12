@@ -170,7 +170,7 @@ Library.
    Contributors explicitly grant you a perpetual, worldwide, non-exclusive, free, irrevocable patent license to use the patents involved in their contributions under LGPL-3.0.
 
 2. **Non-Code Content**  
-   This license applies to source code only. Documentation, examples, images and other non-code resources default to [CC BY-SA 4.0] license (or other licenses you specify).
+   This license applies to source code only. Documentation, examples, images and other non-code resources default to [CC BY-SA 4.0] license.
 
 3. **Attribution Requirements**  
    If you modify the code and distribute it, you must indicate in a prominent location:
