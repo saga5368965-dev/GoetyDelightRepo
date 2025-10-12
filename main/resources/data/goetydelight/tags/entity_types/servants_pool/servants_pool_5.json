@@ -1,0 +1,17 @@
+{
+  "values": [
+    "goety:redstone_monstrosity",
+    {
+      "id": "goety_cataclysm:netherite_monstrosity",
+      "required": false
+    },
+    {
+      "id": "goety_cataclysm:ancient_remnant",
+      "required": false
+    },
+    {
+      "id": "goety_revelation:wither_servant",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+package net.v_black_cat.goetydelight.entities;
+
+
+import com.Polarice3.Goety.api.entities.IOwned;
+import com.Polarice3.Goety.common.entities.ModEntityType;
+import com.Polarice3.Goety.common.entities.projectiles.Hellfire;
+import com.Polarice3.Goety.utils.MobUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
+
+public class OwnedHellfire extends Hellfire {
+
+    public OwnedHellfire(EntityType<? extends Entity> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    public OwnedHellfire(Level world, double pPosX, double pPosY, double pPosZ, @Nullable LivingEntity owner) {
+        super(world, pPosX, pPosY, pPosZ, owner);
+    }
+
+    public OwnedHellfire(Level world, BlockPos blockPos, @Nullable LivingEntity owner) {
+        super(world, blockPos, owner);
+    }
+
+    public OwnedHellfire(Level world, Vec3 vector3d, @Nullable LivingEntity owner) {
+        super(world, vector3d, owner);
+    }
+
+    @Override
+    public void dealDamageTo(LivingEntity target) {
+        LivingEntity owner = this.getOwner();
+
+        

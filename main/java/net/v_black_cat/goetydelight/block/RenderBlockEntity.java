@@ -1,0 +1,14 @@
+package net.v_black_cat.goetydelight.block;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.v_black_cat.goetydelight.render.test.ModShaderRendererHelper;
+
+public class RenderBlockEntity extends BlockEntity {
+
+    public RenderBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.RENDER_BLOCK.get(), pos, state);
+    }
+
+    
