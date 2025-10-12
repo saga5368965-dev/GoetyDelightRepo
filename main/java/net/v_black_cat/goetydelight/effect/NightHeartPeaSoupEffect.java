@@ -22,3 +22,26 @@ public class NightHeartPeaSoupEffect extends MobEffect {
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         
+        
+        Level level = entity.level();
+        if (level.isClientSide) {
+            RandomSource random = level.random;
+            for (int i = 0; i < 2; i++) {
+                double x = entity.getX() + (random.nextDouble() - 0.5) * 2.0;
+                double y = entity.getY() + random.nextDouble() * 1.5;
+                double z = entity.getZ() + (random.nextDouble() - 0.5) * 2.0;
+
+                level.addParticle(ParticleTypes.ENCHANT,
+                        x, y, z,
+                        0, 0.1, 0);
+            }
+        }
+    }
+
+    @Override
+    public boolean isDurationEffectTick(int duration, int amplifier) {
+        
+        return duration % 10 == 0;
+    }
+
+}

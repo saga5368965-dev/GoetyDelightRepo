@@ -11,3 +11,62 @@ import net.minecraft.world.level.Level;
 public class FrenziedFungusPopRocksItem extends Item {
 
     
+    private static final int DAMAGE_BOOST_DURATION = 150 * 20; 
+    private static final int MOVEMENT_SPEED_DURATION = 3000; 
+    private static final int CHARGED_EFFECT_DURATION = 3000; 
+
+    public FrenziedFungusPopRocksItem(Properties pProperties) {
+        super(pProperties);
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
+        ItemStack resultStack = super.finishUsingItem(stack, level, entity);
+
+        if (!level.isClientSide) {
+            
+            MobEffectInstance damageBoostEffect = entity.getEffect(MobEffects.DAMAGE_BOOST);
+            int newDamageBoostDuration = damageBoostEffect != null ?
+                    damageBoostEffect.getDuration() + DAMAGE_BOOST_DURATION :
+                    DAMAGE_BOOST_DURATION;
+
+            entity.addEffect(new MobEffectInstance(
+                    MobEffects.DAMAGE_BOOST,
+                    newDamageBoostDuration,
+                    0, 
+                    false, 
+                    true 
+            ));
+
+            
+            MobEffectInstance movementSpeedEffect = entity.getEffect(MobEffects.MOVEMENT_SPEED);
+            int newMovementSpeedDuration = movementSpeedEffect != null ?
+                    movementSpeedEffect.getDuration() + MOVEMENT_SPEED_DURATION :
+                    MOVEMENT_SPEED_DURATION;
+
+            entity.addEffect(new MobEffectInstance(
+                    MobEffects.MOVEMENT_SPEED,
+                    newMovementSpeedDuration,
+                    0, 
+                    false, 
+                    true 
+            ));
+
+            
+            MobEffectInstance chargedEffect = entity.getEffect(GoetyEffects.CHARGED.get());
+            int newChargedDuration = chargedEffect != null ?
+                    chargedEffect.getDuration() + CHARGED_EFFECT_DURATION :
+                    CHARGED_EFFECT_DURATION;
+
+            entity.addEffect(new MobEffectInstance(
+                    GoetyEffects.CHARGED.get(),
+                    newChargedDuration,
+                    0, 
+                    false, 
+                    true 
+            ));
+        }
+
+        return resultStack;
+    }
+}

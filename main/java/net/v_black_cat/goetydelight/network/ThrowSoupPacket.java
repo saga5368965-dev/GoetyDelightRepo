@@ -33,3 +33,21 @@ public class ThrowSoupPacket {
 
                 if (stack.getItem() instanceof RejectedDarkMeatSoupItem soupItem) {
                     
+                    if (soupItem instanceof EternalRefusalOfBlackMeatSoupItem eternalSoup) {
+                        if (eternalSoup.isOnCooldown(stack, player.level())) {
+                            return;
+                        }
+                    }
+
+                    soupItem.throwSoup(stack, player);
+
+                    
+                    if (stack.getItem() instanceof EternalRefusalOfBlackMeatSoupItem eternalSoup) {
+                        eternalSoup.setCooldown(stack, player.level(), 10 * 20);
+                    }
+                }
+            }
+        });
+        ctx.get().setPacketHandled(true);
+    }
+}

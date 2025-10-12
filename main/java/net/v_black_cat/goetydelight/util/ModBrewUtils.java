@@ -25,3 +25,68 @@ public class ModBrewUtils {
         List<MobEffectInstance> mobEffects = PotionUtils.getMobEffects(brewStack);
         List<BrewEffectInstance> brewEffects = getBrewEffects(brewStack);
         
+        clearAllEffects(brewStack);
+
+        
+        List<MobEffectInstance> finalMobEffects = new ArrayList<>();
+        List<BrewEffectInstance> finalBrewEffects = new ArrayList<>();
+
+        
+        for (MobEffectInstance effect : mobEffects) {
+            if (effect != null) {
+                if (effect.getEffect().getCategory() == MobEffectCategory.HARMFUL) {
+                    
+                    int newAmplifier = Math.min(effect.getAmplifier() + 1, maxAmplifier);
+                    finalMobEffects.add(new MobEffectInstance(
+                            effect.getEffect(),
+                            effect.getDuration(),
+                            newAmplifier,
+                            effect.isAmbient(),
+                            effect.isVisible(),
+                            effect.showIcon()
+                    ));
+                } else {
+                    
+                    finalMobEffects.add(effect);
+                }
+            }
+        }
+
+        
+        if (brewEffects != null) {
+            for (BrewEffectInstance effect : brewEffects) {
+                if (effect != null) {
+                    if (effect.getEffect().getCategory() == MobEffectCategory.HARMFUL) {
+                        
+                        int newAmplifier = Math.min(effect.getAmplifier() + 1, maxAmplifier);
+                        finalBrewEffects.add(new BrewEffectInstance(
+                                effect.getEffect(),
+                                effect.getDuration(),
+                                newAmplifier
+                        ));
+                    } else {
+                        
+                        finalBrewEffects.add(effect);
+                    }
+                }
+            }
+        }
+
+        
+        setCustomEffects(brewStack, finalMobEffects, finalBrewEffects);
+    }
+
+    
+    private static void clearAllEffects(ItemStack brewStack) {
+        CompoundTag tag = brewStack.getOrCreateTag();
+
+        
+        tag.remove("CustomPotionEffects");
+
+        
+        tag.remove("CustomBrewEffects");
+
+
+        tag.remove("Potion");
+    }
+}

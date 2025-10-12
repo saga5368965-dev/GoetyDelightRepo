@@ -24,3 +24,23 @@ public class PlayerEatEventHandler {
         int soulEnergy = FoodSoulEnergyConfig.getSoulEnergyForItem(finishedItem.getItem());
 
         
+        if (soulEnergy > 0) {
+            SEHelper.increaseSouls(player, soulEnergy);
+        }
+
+        
+        CompoundTag tag = finishedItem.getTag();
+        if (tag != null && tag.getBoolean("SoulInfused")) {
+            
+            FoodProperties foodProperties = finishedItem.getFoodProperties(player);
+            if (foodProperties != null) {
+                
+                int bonusSoulEnergy = 5 * foodProperties.getNutrition();
+                SEHelper.increaseSouls(player, bonusSoulEnergy);
+            }
+        }
+
+        
+        SEHelper.sendSEUpdatePacket(player);
+    }
+}

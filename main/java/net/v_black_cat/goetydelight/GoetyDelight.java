@@ -44,3 +44,88 @@ import static net.v_black_cat.goetydelight.item.ModItems.ITEMS;
 import static net.v_black_cat.goetydelight.block.ModBlocks.BLOCKS;
 
 
+
+@Mod(GoetyDelight.MODID)
+public class GoetyDelight
+{
+    
+    public static final String MODID = "goetydelight";
+    
+    public static final Logger LOGGER = LogUtils.getLogger();
+
+
+
+
+    public GoetyDelight(FMLJavaModLoadingContext context)
+    {
+        IEventBus modEventBus = context.getModEventBus();
+
+        
+        modEventBus.addListener(this::commonSetup);
+
+        ModCreativeModTabs.register(modEventBus);
+        
+        BLOCKS.register(modEventBus);
+        
+        ITEMS.register(modEventBus);
+
+        GLOBAL_LOOT_MODIFIER_CODECS.register(modEventBus);
+        
+        MinecraftForge.EVENT_BUS.register(this);
+        RegHelper.LOOT_CONDITIONS.register(modEventBus);
+        ModEffects.register(modEventBus);
+        ModRecipeSerializers.SERIALIZERS.register(modEventBus);
+        ModEntities.register(modEventBus);
+        AbilityRegistry.registerAbilities();
+        ModBlockEntities.register(modEventBus);
+        ModMenuTypes.register(modEventBus);
+        
+        
+    }
+
+
+    private void commonSetup(final FMLCommonSetupEvent event)
+    {
+        
+        
+
+        
+           
+
+        
+        NetworkHandler.register();
+        DelightRitualType.registerRitualType();
+        
+    }
+
+
+    
+    @SubscribeEvent
+    public void onServerStarting(ServerStartingEvent event)
+    {
+        
+        
+    }
+
+    
+    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    public static class ClientModEvents
+    {
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event)
+        {
+            
+           
+           
+            MinecraftForge.EVENT_BUS.addListener(RotationEffectHandler::onRenderTick);
+            MinecraftForge.EVENT_BUS.addListener(RotationEffectHandler::onRenderLivingEvent);
+            MenuScreens.register(ModMenuTypes.CURSED_INGOT_POT.get(), CursedIngotPotScreen::new);
+            MenuScreens.register(ModMenuTypes.SHADE_STOVE.get(), ShadeStoveScreen::new);
+            MenuScreens.register(ModMenuTypes.NIGHT_STOVE.get(), NightStoveScreen::new);
+            BlockEntityRenderers.register(ModBlockEntities.RENDER_BLOCK.get(), RenderBlockRenderer::new);
+
+        }
+    }
+
+
+}

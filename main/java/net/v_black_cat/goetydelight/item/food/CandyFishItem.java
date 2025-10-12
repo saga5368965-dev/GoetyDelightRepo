@@ -19,3 +19,42 @@ public class CandyFishItem extends Item {
 
     public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack stack, Player player, @NotNull LivingEntity entity, @NotNull InteractionHand hand) {
         
+        if (player.level().isClientSide) {
+            return InteractionResult.PASS;
+        }
+
+        
+        if (entity instanceof Apostle cat ) {
+            
+            float maxHealth = cat.getMaxHealth();
+            float healAmount = maxHealth * 0.1f;
+
+            cat.setHealth(Math.min(cat.getHealth() + healAmount, maxHealth));
+
+             cat.level().addParticle(ParticleTypes.HEART, cat.getX(), cat.getY() + 0.5, cat.getZ(), 0, 0, 0);
+
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+
+            return InteractionResult.SUCCESS;
+        }else if (entity.getEncodeId().equals("revelationfix:apostle_servant")) {
+            LivingEntity cat = (LivingEntity) entity;
+            
+            float maxHealth = cat.getMaxHealth();
+            float healAmount = maxHealth * 0.1f;
+
+            cat.setHealth(Math.min(cat.getHealth() + healAmount, maxHealth));
+
+            cat.level().addParticle(ParticleTypes.HEART, cat.getX(), cat.getY() + 0.5, cat.getZ(), 0, 0, 0);
+
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+
+            return InteractionResult.SUCCESS;
+        }
+
+        return InteractionResult.PASS;
+    }
+}

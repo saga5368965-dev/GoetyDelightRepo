@@ -12,3 +12,8 @@ public class RenderBlockEntity extends BlockEntity {
     }
 
     
+    public float getShaderTime() {
+        if (level == null) return 0;
+        return (level.getGameTime() + ModShaderRendererHelper.getPartialTick()) / 20.0f;
+    }
+}

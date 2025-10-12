@@ -40,3 +40,76 @@ public class RotationEffectHandler {
         if (player == null) return;
 
         
+
+
+
+
+
+
+        boolean hasImmunity;
+        if (event.getEntity().level().isClientSide) {
+            
+            hasImmunity = event.getEntity().getPersistentData().getBoolean("ClientSide_" + AbilityRegistry.SUGAR_SCEPTER_IMMUNITY);
+        } else {
+            
+            hasImmunity = TimedAbilitySystem.hasAbility(event.getEntity(), AbilityRegistry.SUGAR_SCEPTER_IMMUNITY);
+        }
+
+
+        
+        if (!hasImmunity) return;
+
+        float partialTicks = event.getPartialTick();
+        PoseStack poseStack = event.getPoseStack();
+
+        poseStack.pushPose();
+
+        
+        poseStack.translate(0, event.getEntity().getBbHeight()/2, 0);
+
+        Quaternionf rotation = Axis.YP.rotationDegrees(rotationAngle);
+        poseStack.mulPose(rotation);
+
+        for (int i = 0; i < ITEM_COUNT; i++) {
+            poseStack.pushPose();
+
+            double angle = i * (360.0 / ITEM_COUNT);
+            double x = RADIUS * Math.cos(Math.toRadians(angle));
+            double z = RADIUS * Math.sin(Math.toRadians(angle));
+
+            poseStack.translate(x, HEIGHT_OFFSET, z);
+
+            poseStack.scale(1f, 1f, 1f); 
+
+            Quaternionf itemRotation = Axis.YP.rotationDegrees(-rotationAngle * 8);
+            poseStack.mulPose(itemRotation);
+
+            ItemStack itemStack = new ItemStack(ModItems.WHITE_SHARK_CANDY.get());
+            renderItem(itemStack, poseStack, mc, partialTicks);
+
+            poseStack.popPose();
+        }
+
+        poseStack.popPose();
+    }
+
+    private static void renderItem(ItemStack stack, PoseStack poseStack, Minecraft mc, float partialTicks) {
+        ItemRenderer itemRenderer = mc.getItemRenderer();
+        BakedModel model = itemRenderer.getModel(stack, null, null, 0);
+
+        MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
+
+        itemRenderer.render(
+                stack,
+                ItemDisplayContext.GROUND,
+                false,
+                poseStack,
+                buffer,
+                15728880,
+                OverlayTexture.NO_OVERLAY,
+                model
+        );
+
+        buffer.endBatch();
+    }
+}

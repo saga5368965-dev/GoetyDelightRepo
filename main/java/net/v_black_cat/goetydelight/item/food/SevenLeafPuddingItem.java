@@ -21,3 +21,136 @@ import java.util.UUID;
 public class SevenLeafPuddingItem extends BowlFoodItem {
 
     
+    private static final UUID ATTACK_DAMAGE_BONUS_UUID = UUID.fromString("d3b1a8c2-4e5f-6a7b-8c9d-0e1f2a3b4c5d");
+    private static final UUID MOVEMENT_SPEED_BONUS_UUID = UUID.fromString("a5b4c3d2-1f0e-9a8b-7c6d-5e4f3a2b1c0d");
+
+    
+    private static final String BONUS_ACTIVE_TAG = "SevenLeafPuddingActive";
+    private static final String ACTIVATION_TIME_TAG = "SevenLeafPuddingActivationTime";
+
+    
+    private static final int DURATION_TICKS = 20 * 60 * 5;  
+
+    public SevenLeafPuddingItem(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
+        ItemStack resultStack = super.finishUsingItem(stack, level, entity);
+
+        if (!level.isClientSide && entity instanceof Player player) {
+            CompoundTag persistentData = player.getPersistentData();
+
+            
+            if (persistentData.getBoolean(BONUS_ACTIVE_TAG)) {
+                removeBonusAttributes(player);
+            }
+
+            
+            addBonusAttributes(player);
+
+            
+            persistentData.putBoolean(BONUS_ACTIVE_TAG, true);
+            persistentData.putLong(ACTIVATION_TIME_TAG, level.getGameTime());
+
+            
+            
+        }
+
+        return resultStack;
+    }
+
+    
+    private void addBonusAttributes(Player player) {
+        
+        AttributeInstance attackDamage = player.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (attackDamage != null) {
+            AttributeModifier modifier = new AttributeModifier(
+                    ATTACK_DAMAGE_BONUS_UUID,
+                    "Seven Leaf Pudding Attack Bonus",
+                    3.0,
+                    AttributeModifier.Operation.ADDITION
+            );
+            attackDamage.addTransientModifier(modifier);
+        }
+
+        
+        AttributeInstance movementSpeed = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeed != null) {
+            AttributeModifier modifier = new AttributeModifier(
+                    MOVEMENT_SPEED_BONUS_UUID,
+                    "Seven Leaf Pudding Speed Bonus",
+                    0.05,  
+                    AttributeModifier.Operation.MULTIPLY_TOTAL
+            );
+            movementSpeed.addTransientModifier(modifier);
+        }
+    }
+
+    
+    private void removeBonusAttributes(Player player) {
+        
+        AttributeInstance attackDamage = player.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (attackDamage != null && attackDamage.getModifier(ATTACK_DAMAGE_BONUS_UUID) != null) {
+            attackDamage.removeModifier(ATTACK_DAMAGE_BONUS_UUID);
+        }
+
+        
+        AttributeInstance movementSpeed = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeed != null && movementSpeed.getModifier(MOVEMENT_SPEED_BONUS_UUID) != null) {
+            movementSpeed.removeModifier(MOVEMENT_SPEED_BONUS_UUID);
+        }
+
+        
+        player.getPersistentData().remove(BONUS_ACTIVE_TAG);
+        player.getPersistentData().remove(ACTIVATION_TIME_TAG);
+    }
+
+    
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        Player player = event.player;
+        Level level = player.level();
+
+        if (!level.isClientSide) {
+            CompoundTag persistentData = player.getPersistentData();
+
+            if (persistentData.getBoolean(BONUS_ACTIVE_TAG)) {
+                long activationTime = persistentData.getLong(ACTIVATION_TIME_TAG);
+                long currentTime = level.getGameTime();
+
+                
+                if (currentTime - activationTime >= DURATION_TICKS) {
+                    
+                    SevenLeafPuddingItem item = (SevenLeafPuddingItem) net.v_black_cat.goetydelight.item.ModItems.SEVEN_LEAF_PUDDING.get();
+                    item.removeBonusAttributes(player);
+
+                    
+
+                }
+            }
+        }
+    }
+
+    
+    @SubscribeEvent
+    public static void onPlayerDeath(net.minecraftforge.event.entity.living.LivingDeathEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            SevenLeafPuddingItem item = (SevenLeafPuddingItem) net.v_black_cat.goetydelight.item.ModItems.SEVEN_LEAF_PUDDING.get();
+            if (player.getPersistentData().getBoolean(BONUS_ACTIVE_TAG)) {
+                item.removeBonusAttributes(player);
+            }
+        }
+    }
+
+    
+    @SubscribeEvent
+    public static void onPlayerRespawn(net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent event) {
+        Player player = event.getEntity();
+        player.getPersistentData().remove(BONUS_ACTIVE_TAG);
+        player.getPersistentData().remove(ACTIVATION_TIME_TAG);
+    }
+}

@@ -46,3 +46,97 @@ public class RenderBlockRenderer implements BlockEntityRenderer<RenderBlockEntit
                        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 
         
+        ModShaderInstance shader = (ModShaderInstance) ModShaderReg.getFloridShader();
+        if (shader == null) {
+            
+            GoetyDelight.LOGGER.error("Florid shader is not registered!");
+            return;
+        }
+
+        
+        shader.setTime(blockEntity.getShaderTime());
+
+        poseStack.pushPose();
+        poseStack.translate( 0.5,0.5  , 0.5); 
+
+        VertexConsumer buffer = bufferSource.getBuffer(SHADER_RENDER_TYPE);
+
+        
+        float size = 0.5f;
+        Vec3[] vertices = {
+                new Vec3(-size, -size, 0),
+                new Vec3(-size, size, 0),
+                new Vec3(size, size, 0),
+                new Vec3(size, -size, 0)
+        };
+
+        
+        for (Direction direction : Direction.values()) {
+            poseStack.pushPose();
+            switch (direction) {
+                case UP -> poseStack.translate(0, 0.5, 0);
+                case DOWN -> poseStack.translate(0, -0.5, 0);
+                case NORTH -> poseStack.translate(0, 0, 0.5);
+                case SOUTH -> poseStack.translate(0, 0, -0.5);
+                case EAST -> poseStack.translate(-0.5, 0, 0);
+                case WEST -> poseStack.translate(0.5, 0, 0);
+            }
+            renderQuad(poseStack, buffer, vertices, direction, packedLight, packedOverlay);
+            poseStack.popPose();
+        }
+
+        poseStack.popPose();
+    }
+
+    private void renderQuad(PoseStack poseStack, VertexConsumer buffer, Vec3[] vertices,
+                            Direction direction, int packedLight, int packedOverlay) {
+        poseStack.pushPose();
+
+        
+        Quaternionf rotation = getQuaternionf(direction);
+        poseStack.mulPose(rotation);
+
+        Matrix4f matrix = poseStack.last().pose();
+
+        
+        buffer.vertex(matrix, (float)vertices[0].x, (float)vertices[0].y, (float)vertices[0].z)
+                .uv(0, 0)
+                .overlayCoords(packedOverlay)
+                .uv2(packedLight)
+                .endVertex();
+
+        buffer.vertex(matrix, (float)vertices[1].x, (float)vertices[1].y, (float)vertices[1].z)
+                .uv(0, 1)
+                .overlayCoords(packedOverlay)
+                .uv2(packedLight)
+                .endVertex();
+
+        buffer.vertex(matrix, (float)vertices[2].x, (float)vertices[2].y, (float)vertices[2].z)
+                .uv(1, 1)
+                .overlayCoords(packedOverlay)
+                .uv2(packedLight)
+                .endVertex();
+
+        buffer.vertex(matrix, (float)vertices[3].x, (float)vertices[3].y, (float)vertices[3].z)
+                .uv(1, 0)
+                .overlayCoords(packedOverlay)
+                .uv2(packedLight)
+                .endVertex();
+
+        poseStack.popPose();
+    }
+
+    private static @NotNull Quaternionf getQuaternionf(Direction direction) {
+        Quaternionf rotation = new Quaternionf();
+        switch (direction) {
+            case UP -> rotation.rotateX((float) Math.toRadians(90));
+            case DOWN -> rotation.rotateX((float) Math.toRadians(-90));
+            case NORTH -> rotation.rotateY((float) Math.toRadians(180));
+            case EAST -> rotation.rotateY((float) Math.toRadians(90));
+            case WEST -> rotation.rotateY((float) Math.toRadians(-90));
+            case SOUTH -> rotation.rotateY((float) Math.toRadians(0));
+            default -> {} 
+        }
+        return rotation;
+    }
+}

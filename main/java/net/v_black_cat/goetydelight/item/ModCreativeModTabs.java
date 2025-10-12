@@ -18,3 +18,85 @@ public class ModCreativeModTabs {
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, GoetyDelight.MODID);
 
     
+    private static final Set<RegistryObject<?>> BLACKLIST = new HashSet<>();
+
+    static {
+         BLACKLIST.add(ModItems.EXAMPLE_ITEM);
+         BLACKLIST.add(ModItems.MARBLE_OP_SWORD);
+
+         BLACKLIST.add(ModItems.APOCALYPTIUM_KNIFE2);
+         BLACKLIST.add(ModItems.APOCALYPTIUM_KNIFE1);
+         BLACKLIST.add(ModItems.GOETYDELIGHT_ICON);
+         BLACKLIST.add(ModItems.ROASTED_CORPSE_MAGGOTS);
+         BLACKLIST.add(ModItems.ROTTEN_CORPSE_MAGGOT_FEAST);
+         BLACKLIST.add(ModItems.CORPSE_MAGGOT);
+         BLACKLIST.add(ModItems.SPIDER_EGG_BUBBLE_TEA_2);
+         BLACKLIST.add(ModItems.APOCALYPTIUM_KNIFE);
+         BLACKLIST.add(ModItems.SPECTRE_KNIFE);
+         BLACKLIST.add(ModItems.APOCALYPTIUM_INGOT_BRUSH);
+         BLACKLIST.add(ModItems.VENOMOUS_SPIDER_KNIFE);
+         BLACKLIST.add(ModItems.ASCENSION_MOONCAKE);
+         BLACKLIST.add(ModItems.PROMOTION_HARD_CANDY);
+
+
+
+
+         BLACKLIST.add(ModBlocks.APOCALYPTIUM_POT);
+
+         BLACKLIST.add(ModBlocks.EXAMPLE_BLOCK);
+         BLACKLIST.add(ModBlocks.NETHER_MARBLE);
+         BLACKLIST.add(ModBlocks.POINTED_DRIPMARBLE);
+         BLACKLIST.add(ModBlocks.DRIPMARBLE_BLOCK);
+         BLACKLIST.add(ModBlocks.MARBLE_STAIRS);
+         BLACKLIST.add(ModBlocks.MARBLE_SLAB);
+         BLACKLIST.add(ModBlocks.MARBLE_BUTTON);
+         BLACKLIST.add(ModBlocks.MARBLE);
+         BLACKLIST.add(ModBlocks.MARBLE_PRESSURE_PLATE);
+         BLACKLIST.add(ModBlocks.MARBLE_FENCE);
+         BLACKLIST.add(ModBlocks.MARBLE_WALL);
+         BLACKLIST.add(ModBlocks.MARBLE_FENCE_GATE);
+         BLACKLIST.add(ModBlocks.MARBLE_DOOR);
+         BLACKLIST.add(ModBlocks.SILT_MARBLE_HEAVY);
+         BLACKLIST.add(ModBlocks.BLUE_MARBLE);
+         BLACKLIST.add(ModBlocks.JUNGLE_MARBLE);
+         BLACKLIST.add(ModBlocks.MARBLE_TRAPDOOR);
+         BLACKLIST.add(ModBlocks.RENDER_BLOCK);
+         BLACKLIST.add(ModBlocks.ROTTEN_CORPSE_MAGGOT_FEAST_BLOCK);
+
+    }
+
+    public static final RegistryObject<CreativeModeTab> GOETYDELIGHT_TAB = CREATIVE_MODE_TABS.register("goetydelight_tab",
+            () -> CreativeModeTab.builder()
+                    .icon(() -> new ItemStack(ModItems.GOETYDELIGHT_ICON.get()))
+                    .title(Component.translatable("creativetab.goetydelight_tab"))
+                    .displayItems((parameters, output) -> {
+                        
+                        ModItems.ITEMS.getEntries().forEach(item -> {
+                            if (item.isPresent() && !BLACKLIST.contains(item)) {
+                                output.accept(item.get());
+                            }
+                        });
+
+                        
+                        ModBlocks.BLOCKS.getEntries().forEach(block -> {
+                            if (block.isPresent() && !BLACKLIST.contains(block)) {
+                                output.accept(block.get());
+                            }
+                        });
+                    })
+                    .build());
+
+    public static void register(IEventBus eventBus) {
+        CREATIVE_MODE_TABS.register(eventBus);
+    }
+
+    
+    public static void addToBlacklist(RegistryObject<?> item) {
+        BLACKLIST.add(item);
+    }
+
+    
+    public static void removeFromBlacklist(RegistryObject<?> item) {
+        BLACKLIST.remove(item);
+    }
+}

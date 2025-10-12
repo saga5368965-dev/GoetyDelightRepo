@@ -32,3 +32,8 @@ public class RottenCorpseMaggotFeastBlock extends FeastBlock {
     }
 
     
+    public int getMaxServings() {
+        return 3;
+    }
+
+}

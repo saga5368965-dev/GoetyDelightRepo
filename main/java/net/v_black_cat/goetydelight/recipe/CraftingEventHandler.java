@@ -17,3 +17,24 @@ public class CraftingEventHandler {
         ItemStack crafted = event.getCrafting();
 
         
+        if (crafted.hasTag() && crafted.getTag().contains("ReturnCooledSoup")) {
+            
+            crafted.getTag().remove("ReturnCooledSoup");
+
+            
+            ItemStack cooledSoup = new ItemStack(ModItems.CUP.get());
+            if (cooledSoup.getItem() instanceof EternalRefusalOfBlackMeatSoupItem soupItem) {
+                soupItem.setCooldown(cooledSoup, player.level(), 60 * 20);
+
+                
+                if (!player.getInventory().add(cooledSoup)) {
+                    
+                    player.drop(cooledSoup, false);
+                }
+            }
+        }
+        
+
+
+    }
+}

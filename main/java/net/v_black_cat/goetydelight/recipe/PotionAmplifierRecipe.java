@@ -56,3 +56,131 @@ public class PotionAmplifierRecipe extends CustomRecipe {
                     hasAmplifier = true;
                 }else if (stack.getItem() instanceof EternalRefusalOfBlackMeatSoupItem cup){
                     
+                    if (!cup.isOnCooldown(stack, pLevel)){
+                        amplifierStack = stack;
+                        hasAmplifier = true;
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
+
+        
+        if (hasWitchBrew && hasAmplifier) {
+            int maxAmplifications = getMaxAmplifications(amplifierStack);
+            int currentAmplifications = getCurrentAmplifications(brewStack);
+
+            return currentAmplifications < maxAmplifications;
+        }
+
+        return false;
+    }
+
+    @Override
+    public ItemStack assemble(CraftingContainer pContainer, RegistryAccess pRegistryAccess) {
+        ItemStack brewStack = ItemStack.EMPTY;
+        ItemStack amplifierStack = ItemStack.EMPTY;
+
+        
+        for (int i = 0; i < pContainer.getContainerSize(); i++) {
+            ItemStack stack = pContainer.getItem(i);
+            if (stack.getItem() == BREW.get()) {
+                brewStack = stack;
+            } else if (stack.getItem() == ModItems.REJECTED_DARK_MEAT_SOUP.get() ||
+                    stack.getItem() == ModItems.CUP.get()) {
+                amplifierStack = stack;
+            }
+        }
+
+        if (brewStack.isEmpty() || amplifierStack.isEmpty()) return ItemStack.EMPTY;
+
+        
+        ItemStack result = brewStack.copy();
+        result.setCount(1);
+
+        
+        int currentAmplifications = getCurrentAmplifications(result);
+        setCurrentAmplifications(result, currentAmplifications + 1);
+
+        
+        ModBrewUtils.increaseNegativeEffects(result, 5);
+
+        
+        if (amplifierStack.getItem() instanceof EternalRefusalOfBlackMeatSoupItem) {
+            CompoundTag tag = result.getOrCreateTag();
+            tag.putBoolean("ReturnCooledSoup", true);
+        }
+
+        return result;
+    }
+
+    
+    private int getCurrentAmplifications(ItemStack brewStack) {
+        CompoundTag tag = brewStack.getTag();
+        if (tag != null && tag.contains("AmplifiedCount")) {
+            return tag.getInt("AmplifiedCount");
+        }
+        return 0;
+    }
+
+    
+    private void setCurrentAmplifications(ItemStack brewStack, int count) {
+        CompoundTag tag = brewStack.getOrCreateTag();
+        tag.putInt("AmplifiedCount", count);
+    }
+
+    
+    private int getMaxAmplifications(ItemStack amplifierStack) {
+        if (amplifierStack.getItem() == ModItems.REJECTED_DARK_MEAT_SOUP.get()) {
+            return 3;
+        } else if (amplifierStack.getItem() == ModItems.CUP.get()) {
+            return 5;
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean canCraftInDimensions(int pWidth, int pHeight) {
+        return pWidth * pHeight >= 2;
+    }
+
+    @Override
+    public RecipeSerializer<?> getSerializer() {
+        return ModRecipeSerializers.POTION_AMPLIFIER.get();
+    }
+
+    private boolean hasNegativeEffects(ItemStack brewStack) {
+        boolean hasNegativeMobEffects = PotionUtils.getMobEffects(brewStack).stream()
+                .anyMatch(effect -> effect.getEffect().getCategory() == MobEffectCategory.HARMFUL);
+
+        boolean hasNegativeBrewEffects = false;
+        List<BrewEffectInstance> brewEffects = getBrewEffects(brewStack);
+        if (brewEffects != null) {
+            hasNegativeBrewEffects = brewEffects.stream()
+                    .anyMatch(effect -> effect.getEffect().getCategory() == MobEffectCategory.HARMFUL);
+        }
+
+        return hasNegativeMobEffects || hasNegativeBrewEffects;
+    }
+
+    public static class Serializer implements RecipeSerializer<PotionAmplifierRecipe> {
+        @Override
+        public PotionAmplifierRecipe fromJson(ResourceLocation pRecipeId, JsonObject pSerializedRecipe) {
+            CraftingBookCategory category = CraftingBookCategory.CODEC.byName(
+                    GsonHelper.getAsString(pSerializedRecipe, "category", null), CraftingBookCategory.MISC);
+            return new PotionAmplifierRecipe(pRecipeId, category);
+        }
+
+        @Override
+        public PotionAmplifierRecipe fromNetwork(ResourceLocation pRecipeId, FriendlyByteBuf pBuffer) {
+            CraftingBookCategory category = pBuffer.readEnum(CraftingBookCategory.class);
+            return new PotionAmplifierRecipe(pRecipeId, category);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf pBuffer, PotionAmplifierRecipe pRecipe) {
+            pBuffer.writeEnum(pRecipe.category());
+        }
+    }
+}

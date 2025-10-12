@@ -37,3 +37,117 @@ public abstract class BrushableBlockEntityMixin {
     private int brushCount;
 
     
+    private Player currentBrushingPlayer;
+
+    @Inject(
+            method = "brush",
+            at = @At("HEAD")
+    )
+    private void onBrushStart(long pStartTick, Player pPlayer, Direction pHitDirection, CallbackInfoReturnable<Boolean> cir) {
+        
+        this.currentBrushingPlayer = pPlayer;
+    }
+
+    @Inject(
+            method = "brush",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/block/entity/BrushableBlockEntity;getCompletionState()I",
+                    ordinal = 0,  
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void beforeCompletionCheck(long pStartTick, Player pPlayer, Direction pHitDirection, CallbackInfoReturnable<Boolean> cir) {
+        if (this.currentBrushingPlayer != null) {
+
+
+            if(currentBrushingPlayer.getMainHandItem().getItem() == ModItems.CURSED_METAL_BRUSH.get()){
+
+                if(this.brushCount==3){
+                    this.brushCount=4;
+                }
+                if(this.brushCount==6){
+                    this.brushCount=7;
+                }
+                if(this.brushCount==8){
+                    this.brushCount=10;
+                }
+            }
+            if(currentBrushingPlayer.getMainHandItem().getItem() == ModItems.DARK_BRUSH.get()){
+
+                if (this.brushCount % 2 == 1 && this.brushCount < 10) {
+                    this.brushCount++;
+                }
+            }
+
+        }
+
+
+    }
+
+
+    @Inject(
+            method = "dropContent",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z",
+                    shift = At.Shift.AFTER
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
+    private void onDropContent(Player player, CallbackInfo ci) {
+        BrushableBlockEntity blockEntity = (BrushableBlockEntity) (Object) this;
+
+
+
+        
+        if (blockEntity.getLevel() instanceof ServerLevel serverLevel && this.lootTable != null) {
+            
+            if (isUsingCustomBrush(this.currentBrushingPlayer)) {
+                
+                LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(this.lootTable);
+
+                
+                LootParams.Builder lootContextBuilder = new LootParams.Builder(serverLevel)
+                        .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockEntity.getBlockPos()))
+                        .withParameter(LootContextParams.THIS_ENTITY, player)
+                        .withLuck(player.getLuck());
+
+                
+                List<ItemStack> extraDrops = lootTable.getRandomItems(lootContextBuilder.create(LootContextParamSets.CHEST));
+
+                
+                for (ItemStack extraDrop : extraDrops) {
+                    BlockPos pos = blockEntity.getBlockPos();
+                    serverLevel.addFreshEntity(new ItemEntity(
+                            serverLevel,
+                            pos.getX() + 0.5,
+                            pos.getY() + 0.5,
+                            pos.getZ() + 0.5,
+                            extraDrop
+                    ));
+                }
+            }
+        }
+
+        
+        this.currentBrushingPlayer = null;
+    }
+
+    
+    private boolean isUsingCustomBrush(Player player) {
+        if (player == null) {
+            return false;
+        }
+
+        
+        ItemStack mainHandItem = player.getMainHandItem();
+        ItemStack offHandItem = player.getOffhandItem();
+
+        
+        
+        return false;
+
+
+    }
+}

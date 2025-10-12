@@ -57,3 +57,98 @@ public class BoneLordAshRiceItem extends Item {
 
              
            
+        }
+
+        return resultStack;
+    }
+
+     
+    private void addBonusAttributes(Player player) {
+        AttributeInstance armorAttribute = player.getAttribute(Attributes.ARMOR);
+        if (armorAttribute != null) {
+            AttributeModifier modifier = new AttributeModifier(
+                    ARMOR_BONUS_UUID,
+                    "Bone Lord Ash Rice Armor Bonus",
+                    15.0,
+                    AttributeModifier.Operation.ADDITION
+            );
+            armorAttribute.addTransientModifier(modifier);
+        }
+
+        AttributeInstance toughnessAttribute = player.getAttribute(Attributes.ARMOR_TOUGHNESS);
+        if (toughnessAttribute != null) {
+            AttributeModifier modifier = new AttributeModifier(
+                    ARMOR_TOUGHNESS_BONUS_UUID,
+                    "Bone Lord Ash Rice Toughness Bonus",
+                    10.0,
+                    AttributeModifier.Operation.ADDITION
+            );
+            toughnessAttribute.addTransientModifier(modifier);
+        }
+    }
+
+     
+    private void removeBonusAttributes(Player player) {
+        AttributeInstance armorAttribute = player.getAttribute(Attributes.ARMOR);
+        if (armorAttribute != null && armorAttribute.getModifier(ARMOR_BONUS_UUID) != null) {
+            armorAttribute.removeModifier(ARMOR_BONUS_UUID);
+        }
+
+        AttributeInstance toughnessAttribute = player.getAttribute(Attributes.ARMOR_TOUGHNESS);
+        if (toughnessAttribute != null && toughnessAttribute.getModifier(ARMOR_TOUGHNESS_BONUS_UUID) != null) {
+            toughnessAttribute.removeModifier(ARMOR_TOUGHNESS_BONUS_UUID);
+        }
+
+         
+        player.getPersistentData().remove(BONUS_ACTIVE_TAG);
+        player.getPersistentData().remove(ACTIVATION_TIME_TAG);
+    }
+
+     
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        Player player = event.player;
+        Level level = player.level();
+
+        if (!level.isClientSide) {
+            CompoundTag persistentData = player.getPersistentData();
+
+            if (persistentData.getBoolean(BONUS_ACTIVE_TAG)) {
+                long activationTime = persistentData.getLong(ACTIVATION_TIME_TAG);
+                long currentTime = level.getGameTime();
+
+                 
+                if (currentTime - activationTime >= DURATION_TICKS) {
+                     
+                    BoneLordAshRiceItem item = (BoneLordAshRiceItem) net.v_black_cat.goetydelight.item.ModItems.BONE_LORD_ASH_RICE.get();
+                    item.removeBonusAttributes(player);
+
+                     
+
+                }
+            }
+        }
+    }
+
+     
+    @SubscribeEvent
+    public static void onPlayerDeath(net.minecraftforge.event.entity.living.LivingDeathEvent event) {
+        if (event.getEntity() instanceof Player player) {
+             
+            BoneLordAshRiceItem item = (BoneLordAshRiceItem) net.v_black_cat.goetydelight.item.ModItems.BONE_LORD_ASH_RICE.get();
+            if (player.getPersistentData().getBoolean(BONUS_ACTIVE_TAG)) {
+                item.removeBonusAttributes(player);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent event) {
+        Player player = event.getEntity();
+         
+        player.getPersistentData().remove(BONUS_ACTIVE_TAG);
+        player.getPersistentData().remove(ACTIVATION_TIME_TAG);
+    }
+}

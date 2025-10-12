@@ -37,3 +37,35 @@ public class OwnedHellfire extends Hellfire {
         LivingEntity owner = this.getOwner();
 
         
+        if (shouldBeImmune(target, owner)) {
+            return;
+        }
+
+        super.dealDamageTo(target);
+    }
+
+    private boolean shouldBeImmune(LivingEntity target, LivingEntity owner) {
+        
+        if (target == owner) {
+            return true;
+        }
+
+        
+        if (target instanceof IOwned ownedTarget) {
+            LivingEntity targetOwner = ownedTarget.getTrueOwner();
+            if (targetOwner == owner) {
+                return true;
+            }
+
+            
+            if (targetOwner instanceof IOwned ownedOwner) {
+                if (ownedOwner.getTrueOwner() == owner) {
+                    return true;
+                }
+            }
+        }
+
+        
+        return MobUtil.areAllies(owner, target);
+    }
+}

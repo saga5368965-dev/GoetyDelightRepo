@@ -26,3 +26,87 @@ public class TaintedPigEffect extends MobEffect {
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         
+        super.applyEffectTick(entity, amplifier);
+    }
+
+
+
+    @Override
+    public boolean isDurationEffectTick(int duration, int amplifier) {
+        
+        return false;
+    }
+
+    @Override
+    public void removeAttributeModifiers(LivingEntity entity, AttributeMap map, int amplifier) {
+        super.removeAttributeModifiers(entity, map, amplifier);
+        
+    }
+
+    public static void createZombifiedPiglinMinion(Level level, LivingEntity owner) {
+
+        EntityType<?> entityType = ModEntityType.ZPIGLIN_BRUTE_SERVANT.get();
+        Summoned servant = (Summoned) entityType.create(level);
+
+        if (servant != null) {
+            servant.setPos(owner.getX(), owner.getY(), owner.getZ());
+            servant.setTrueOwner(owner);
+            servant.setLimitedLife(3600); 
+
+            
+            if (owner.getRandom().nextFloat() < 0.01f) {
+                servant.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.NETHERITE_HELMET));
+                servant.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.NETHERITE_CHESTPLATE));
+                servant.setItemSlot(EquipmentSlot.LEGS, new ItemStack(Items.NETHERITE_LEGGINGS));
+                servant.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.NETHERITE_BOOTS));
+            }
+
+            
+            if (level instanceof ServerLevel) {
+                ServerLevel serverLevel = (ServerLevel) level;
+                servant.finalizeSpawn(serverLevel, level.getCurrentDifficultyAt(servant.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+            }
+
+            level.addFreshEntity(servant);
+        }
+    }
+
+    
+    @Mod.EventBusSubscriber(modid = "goetydelight")
+    public static class TaintedPigEffectEventHandler {
+
+        @SubscribeEvent
+        public static void onLivingHurt(LivingHurtEvent event) {
+            LivingEntity entity = event.getEntity();
+
+            
+            if (entity.hasEffect(ModEffects.ZOMBIFIED_PIGLIN_BRUTE_SERVANT_SUPPORT.get())) {
+                
+                if (entity.getRandom().nextFloat() < 0.5f) {
+                    Level level = entity.level();
+
+                    
+                    createZombifiedPiglinMinion(level, entity);
+
+                    
+                    MobEffectInstance effectInstance = entity.getEffect(ModEffects.ZOMBIFIED_PIGLIN_BRUTE_SERVANT_SUPPORT.get());
+                    if (effectInstance != null) {
+                        int newDuration = effectInstance.getDuration() - 1200; 
+                        if (newDuration <= 0) {
+                            entity.removeEffect(ModEffects.ZOMBIFIED_PIGLIN_BRUTE_SERVANT_SUPPORT.get());
+                        } else {
+                            entity.addEffect(new MobEffectInstance(
+                                    ModEffects.ZOMBIFIED_PIGLIN_BRUTE_SERVANT_SUPPORT.get(),
+                                    newDuration,
+                                    effectInstance.getAmplifier(),
+                                    effectInstance.isAmbient(),
+                                    effectInstance.isVisible()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

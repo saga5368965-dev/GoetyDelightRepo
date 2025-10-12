@@ -24,3 +24,54 @@ public class ModBlockLootTables extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+        this.dropSelf(ModBlocks.MARBLE.get());
+        this.dropSelf(ModBlocks.SILT_MARBLE_HEAVY.get());
+        this.dropSelf(ModBlocks.BLUE_MARBLE.get());
+        this.dropSelf(ModBlocks.JUNGLE_MARBLE.get());
+        this.dropSelf(ModBlocks.NETHER_MARBLE.get());
+        this.dropSelf(ModBlocks.DRIPMARBLE_BLOCK.get());
+        this.dropSelf(ModBlocks.POINTED_DRIPMARBLE.get());
+        this.dropSelf(ModBlocks.MARBLE_STAIRS.get());
+        this.dropSelf(ModBlocks.MARBLE_BUTTON.get());
+        this.dropSelf(ModBlocks.MARBLE_PRESSURE_PLATE.get());
+        this.dropSelf(ModBlocks.MARBLE_TRAPDOOR.get());
+        this.dropSelf(ModBlocks.MARBLE_FENCE.get());
+        this.dropSelf(ModBlocks.MARBLE_FENCE_GATE.get());
+        this.dropSelf(ModBlocks.MARBLE_WALL.get());
+        this.dropSelf(ModBlocks.NIGHT_STOVE.get());
+        this.dropSelf(ModBlocks.CURSED_INGOT_POT.get());
+        this.dropSelf(ModBlocks.NIGHT_STOVE.get());
+        this.dropSelf(ModBlocks.SHADE_STOVE.get());
+        this.dropOther(ModBlocks.ROTTEN_CORPSE_MAGGOT_FEAST_BLOCK.get(), Items.BOWL);
+        this.add(ModBlocks.MARBLE_SLAB.get(),
+                block -> createSlabItemTable(ModBlocks.MARBLE_SLAB.get()));
+        this.add(ModBlocks.MARBLE_DOOR.get(),
+                block -> createDoorTable(ModBlocks.MARBLE_DOOR.get()));
+    }
+
+    protected LootTable.Builder createCopperLikeOreDrops(Block pBlock, Item item) {
+        return createSilkTouchDispatchTable(pBlock,
+                this.applyExplosionDecay(pBlock,
+                        LootItem.lootTableItem(item)
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 5.0F)))
+                                .apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))));
+    }
+
+    @Override
+    protected Iterable<Block> getKnownBlocks() {
+        return ModBlocks.BLOCKS.getEntries().stream().map(RegistryObject::get)::iterator;
+    }
+}

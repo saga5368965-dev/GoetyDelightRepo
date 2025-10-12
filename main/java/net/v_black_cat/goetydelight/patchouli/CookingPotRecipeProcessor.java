@@ -32,3 +32,45 @@ public class CookingPotRecipeProcessor implements IComponentProcessor {
 
         switch (key) {
             
+            case "input0": return getIngredientStack(0);
+            case "input1": return getIngredientStack(1);
+            case "input2": return getIngredientStack(2);
+            case "input3": return getIngredientStack(3);
+            case "input4": return getIngredientStack(4);
+            case "input5": return getIngredientStack(5);
+
+            
+            case "output":
+                return IVariable.from(recipe.getResultItem(level.registryAccess()));
+
+            
+            case "container":
+                return IVariable.from(recipe.getOutputContainer());
+
+            
+            case "cookTime":
+                return IVariable.wrap(recipe.getCookTime());
+
+            
+            case "experience":
+                return IVariable.wrap(recipe.getExperience());
+
+            default:
+                return null;
+        }
+    }
+
+    private IVariable getIngredientStack(int index) {
+        List<Ingredient> ingredients = recipe.getIngredients();
+        if (index >= ingredients.size()) {
+            return IVariable.from(ItemStack.EMPTY);
+        }
+
+        Ingredient ingredient = ingredients.get(index);
+        ItemStack[] items = ingredient.getItems();
+        if (items.length > 0) {
+            return IVariable.from(items[0]);
+        }
+        return IVariable.from(ItemStack.EMPTY);
+    }
+}

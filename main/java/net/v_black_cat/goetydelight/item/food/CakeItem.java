@@ -86,3 +86,83 @@ public class CakeItem extends Item {
                     SoundEvents.PHANTOM_DEATH, SoundSource.PLAYERS, 1.0F, 1.0F);
             if (kills > 0) {
                 
+            }
+
+            
+            if (remainingUses <= 0) {
+                stack.shrink(1); 
+                if (stack.isEmpty()) {
+                    return ItemStack.EMPTY; 
+                }
+            }
+        }
+
+        return stack;
+    }
+
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        
+        CompoundTag nbt = stack.getTag();
+        if (nbt != null && nbt.contains(REMAINING_USES_TAG)) {
+            return nbt.getInt(REMAINING_USES_TAG) < MAX_USES;
+        }
+        return false;
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        
+        CompoundTag nbt = stack.getOrCreateTag();
+        int remainingUses = nbt.getInt(REMAINING_USES_TAG);
+        if (remainingUses == 0) {
+            remainingUses = MAX_USES;
+        }
+        return Math.round(13.0F * remainingUses / MAX_USES);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        
+        CompoundTag nbt = stack.getOrCreateTag();
+        int remainingUses = nbt.getInt(REMAINING_USES_TAG);
+        if (remainingUses == 0) {
+            remainingUses = MAX_USES;
+        }
+
+        float ratio = (float) remainingUses / MAX_USES;
+        
+        int r = (int) (255 * (1.0F - ratio));
+        int g = (int) (255 * ratio);
+        int b = 0;
+
+        return (r << 16) | (g << 8) | b;
+    }
+
+
+    private boolean isTargetEntity(Mob entity) {
+        ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
+        if (entityId == null) {
+            return false;
+        }
+        
+        return entityId.equals(new ResourceLocation("minecraft:vex")) ||
+                entityId.equals(new ResourceLocation("minecraft:allay")) ||
+                entityId.equals(new ResourceLocation("goety:ally_irk")) ||
+                entityId.equals(new ResourceLocation("goety:tormentor"))||
+                entityId.equals(new ResourceLocation("goety:irk"));
+    }
+
+
+    private void addDeathEffects(Level level, Mob target) {
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                    target.getX(), target.getY() + target.getBbHeight() / 2, target.getZ(),
+                    15, 0.5, 0.5, 0.5, 0.05);
+
+            level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                    SoundEvents.SOUL_ESCAPE, SoundSource.HOSTILE, 0.8F, 1.0F);
+        }
+    }
+}

@@ -24,3 +24,35 @@ public class ModShaderRenderer {
             if (player == null) return;
             time = (player.level().getGameTime() + mc.getFrameTime()) / 10.0f;
             
+            ModShaderInstance shader = (ModShaderInstance) ModShaderReg.getFloridShader();
+            shader.setTime(time);
+
+            time += 0.05f;
+            if (time > 100) time = 0;
+
+            PoseStack poseStack = event.getPoseStack();
+            poseStack.pushPose();
+            poseStack.translate(0, 2, 3);
+
+            RenderSystem.setShader(() -> shader);
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder buffer = tesselator.getBuilder();
+            buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+
+            float size = 2f;
+            buffer.vertex(poseStack.last().pose(), -size, -size, 0).uv(0, 0).endVertex();
+            buffer.vertex(poseStack.last().pose(), -size, size, 0).uv(0, 1).endVertex();
+            buffer.vertex(poseStack.last().pose(), size, size, 0).uv(1, 1).endVertex();
+            buffer.vertex(poseStack.last().pose(), size, -size, 0).uv(1, 0).endVertex();
+
+            tesselator.end();
+            poseStack.popPose();
+            RenderSystem.disableBlend();
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        }
+
+    }
+}

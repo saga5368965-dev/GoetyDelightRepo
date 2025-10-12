@@ -14,3 +14,60 @@ public class AbilityRegistry {
         TimedAbilitySystem.registerAbility(
                 SUGAR_SCEPTER_IMMUNITY,
                 
+                entity -> {
+                    if (entity != null) {
+                        
+                        
+                        entity.getPersistentData().putBoolean("hasSugarScepterImmunity", true);
+                    }
+                },
+                
+                entity -> {
+                    if (entity != null) {
+                        
+                        entity.getPersistentData().putBoolean("hasSugarScepterImmunity", false);
+                        
+                    }
+                }
+        );
+
+
+        
+        TimedAbilitySystem.registerAbility(
+                RUBY_HARD_CANDY_DAMAGE_REDUCTION,
+                
+                entity -> {
+                    if (entity != null) {
+                        entity.getPersistentData().putBoolean("hasRubyCandyDamageReduction", true);
+                    }
+                },
+                
+                entity -> {
+                    if (entity != null) {
+                        entity.getPersistentData().putBoolean("hasRubyCandyDamageReduction", false);
+                    }
+                }
+        );
+
+
+        
+        TimedAbilitySystem.registerAbility(
+                NIGHT_STOVE,
+                
+                entity -> {
+                    if (entity != null) {
+                        
+                        entity.getPersistentData().putBoolean("hasNightStove", true);
+                    }
+                },
+                
+                entity -> {
+                    if (entity != null) {
+                        
+                        entity.getPersistentData().putBoolean("hasNightStove", false);
+                        
+                    }
+                }
+        );
+    }
+}

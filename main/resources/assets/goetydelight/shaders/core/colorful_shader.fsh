@@ -2,7 +2,7 @@
 
 uniform sampler2D Sample0;
 uniform vec4 ColorModulator;
-uniform vec4 color; // 添加颜色uniform
+uniform vec4 color;
 
 in vec2 texCoord;
 in float vTime;

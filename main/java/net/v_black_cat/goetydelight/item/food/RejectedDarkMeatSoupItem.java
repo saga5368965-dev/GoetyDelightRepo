@@ -66,3 +66,53 @@ public class RejectedDarkMeatSoupItem extends Item {
 
 
     
+    private void throwPotion(ItemStack stack, Level level, Player player) {
+        if (!level.isClientSide) {
+            
+            ItemStack throwStack = stack.copy();
+            throwStack.setCount(1);
+
+            
+            int randomAmplifier = level.random.nextInt(5);
+            PotionUtils.setCustomEffects(throwStack, Arrays.asList(
+                    new MobEffectInstance(MobEffects.CONFUSION, sToTick(30)),
+                    new MobEffectInstance(MobEffects.POISON, sToTick(30), randomAmplifier),
+                    new MobEffectInstance(MobEffects.WEAKNESS, sToTick(30), 1)
+            ));
+
+            
+            ThrownPotion thrownPotion = new ThrownPotion(level, player);
+            thrownPotion.setItem(throwStack);
+            thrownPotion.shootFromRotation(player, player.getXRot(), player.getYRot(), -20.0F, 0.5F, 1.0F);
+            level.addFreshEntity(thrownPotion);
+        }
+
+        player.awardStat(Stats.ITEM_USED.get(this));
+    }
+
+    public void throwSoup(ItemStack stack, LivingEntity attacker) {
+        if (attacker instanceof Player player) {
+            throwPotion(stack, player.level(), player);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+        }
+    }
+
+    @Mod.EventBusSubscriber(modid = "goetydelight")
+    public static class PlayerLeftClickHandler {
+
+        @SubscribeEvent
+        public static void onLeftClick(PlayerInteractEvent.LeftClickEmpty event) {
+            if (event instanceof PlayerInteractEvent.LeftClickEmpty) {
+
+                Player player = event.getEntity();
+                ItemStack stack = player.getMainHandItem();
+
+                if (stack.getItem() instanceof RejectedDarkMeatSoupItem) {
+                    
+                    NetworkHandler.sendToServer(new ThrowSoupPacket(player.getUUID()));
+                }
+            }
+    }}
+}

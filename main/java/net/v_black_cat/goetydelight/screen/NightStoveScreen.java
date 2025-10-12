@@ -49,3 +49,9 @@ public class NightStoveScreen extends AbstractContainerScreen<NightStoveMenu> {
         pGuiGraphics.blit(TEXTURE, i, j, 0, 0, this.imageWidth, this.imageHeight);
 
         
+        if (this.menu.getCookProgress() > 0) {
+            int k = this.menu.getCookProgress();
+            pGuiGraphics.blit(TEXTURE, i + 79, j + 34, 176, 14, k + 1, 16);
+        }
+    }
+}

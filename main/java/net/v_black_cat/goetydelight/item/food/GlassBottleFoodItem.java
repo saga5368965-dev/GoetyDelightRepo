@@ -15,3 +15,23 @@ public class GlassBottleFoodItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         
+        ItemStack result = super.finishUsingItem(stack, level, entity);
+
+        
+        if (entity instanceof Player player) {
+            if (player.getAbilities().instabuild) {
+                return result; 
+            }
+
+            
+            if (result.isEmpty()) {
+                return new ItemStack(Items.GLASS_BOTTLE); 
+            } else if (!player.getInventory().add(new ItemStack(Items.GLASS_BOTTLE))) {
+                player.drop(new ItemStack(Items.GLASS_BOTTLE), false); 
+            }
+        }
+
+        return result;
+    }
+
+}

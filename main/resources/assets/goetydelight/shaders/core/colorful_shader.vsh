@@ -5,9 +5,9 @@ in vec2 UV0;
 
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
-uniform float iTime; // 时间uniform
-uniform float intensity; // 强度uniform
-uniform vec4 color; // 颜色uniform
+uniform float iTime;
+uniform float intensity;
+uniform vec4 color;
 
 out vec2 texCoord;
 out float vTime;
@@ -19,5 +19,5 @@ void main() {
     texCoord = UV0;
     vTime = iTime;
     vIntensity = intensity;
-    vColor = color; // 传递颜色到片段着色器
+    vColor = color;
 }

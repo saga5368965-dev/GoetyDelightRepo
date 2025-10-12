@@ -14,3 +14,23 @@ import java.util.UUID;
 public class SpellDurationEffect extends MobEffect {
 
     
+    private static final UUID SPELL_DURATION_UUID = UUID.fromString("8b4513a0-4e2a-11ee-be56-0242ac120002");
+
+    public SpellDurationEffect() {
+        super(MobEffectCategory.BENEFICIAL, 0x8B4513);
+        
+        this.addAttributeModifier(
+                ModAttributes.SPELL_DURATION.get(),
+                SPELL_DURATION_UUID.toString(),
+                2, 
+                AttributeModifier.Operation.ADDITION
+        );
+    }
+
+    @Override
+    public double getAttributeModifierValue(int amplifier, AttributeModifier modifier) {
+        
+        
+        return modifier.getAmount() * (amplifier + 1);
+    }
+}
